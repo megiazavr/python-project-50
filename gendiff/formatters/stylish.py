@@ -60,7 +60,7 @@ C901
                     f"{iter_(val[VALUE], deep_indent_size)}"
                 )
             else:
-                raise ERROR
+                raise Value_Error
         result = itertools.chain('{', list_string, [current_indent + '}'])
         return '\n'.join(result)
 
@@ -68,7 +68,7 @@ C901
 
 
 def format_dic(item, replacer, depth=0):
-    if not isinstance(item, dict):
+    if not isinstance(v, dict):
         return str(item)
     deep_indent_size = depth + INDENT_STEP
     indent = replacer * deep_indent_size
