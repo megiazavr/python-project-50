@@ -1,6 +1,5 @@
 import itertools
 
-
 STATUS = 'status'
 ADDED = 'added'
 NESTED = 'nested'
@@ -12,10 +11,7 @@ UPDATED_VALUE = 'updated_value'
 ERROR = 'Object has no STATUS'
 INDENT_STEP = 4
 
-
-def stylish_format(item, replacer=' ', add='+ ', remove='- '):  # noqa: 
-C901
-
+def stylish_format(item, replacer=' ', add='+ ', remove='- '):  # noqa: C901
     def iter_(current_item, depth):
         if not isinstance(current_item, dict):
             return str(current_item)
@@ -29,13 +25,13 @@ C901
             if val[STATUS] == REMOVED:
                 values = is_bool(val[VALUE])
                 list_string.append(
-                    f"{deep_indent[: - 2]}{remove}{key}: "
+                    f"{deep_indent[:-2]}{remove}{key}: "
                     f"{format_dic(values, replacer, deep_indent_size)}"
                 )
             elif val[STATUS] == ADDED:
                 values = is_bool(val[VALUE])
                 list_string.append(
-                    f"{deep_indent[: - 2]}{add}{key}: "
+                    f"{deep_indent[:-2]}{add}{key}: "
                     f"{format_dic(values, replacer, deep_indent_size)}"
                 )
             elif val[STATUS] == UNCHANGED:
@@ -48,48 +44,52 @@ C901
                 value1 = is_bool(val[VALUE])
                 value2 = is_bool(val[UPDATED_VALUE])
                 list_string.append(
-                    f"{deep_indent[: - 2]}{remove}{key}: "
+                    f"{deep_indent[:-2]}{remove}{key}: "
                     f"{format_dic(value1, replacer, deep_indent_size)}"
                 )
                 list_string.append(
-                    f"{deep_indent[: -2]}{add}{key}: "
-                    f"{format_dic(value2, replacer, deep_indent_size)}")
+                    f"{deep_indent[:-2]}{add}{key}: "
+                    f"{format_dic(value2, replacer, deep_indent_size)}"
+                )
             elif val[STATUS] == NESTED:
                 list_string.append(
                     f"{deep_indent}{key}: "
                     f"{iter_(val[VALUE], deep_indent_size)}"
                 )
             else:
-                raise Value_Error
+                raise ValueError(ERROR)
+                
         result = itertools.chain('{', list_string, [current_indent + '}'])
         return '\n'.join(result)
-
+                
     return iter_(item, 0)
 
-
-def format_dic(item, replacer, depth=0):
-    if not isinstance(v, dict):
+def format_dic(item, replacer, depth=0):  
+    if not isinstance(item, dict):
         return str(item)
-    deep_indent_size = depth + INDENT_STEP
+
+    deep_indent_size = depth + INDENT_STEP 
     indent = replacer * deep_indent_size
     current_indent = replacer * depth
     list_string = []
+    
     for k, v in item.items():
-        if not isinstance(item, dict):
+        if not isinstance(v, dict):
             list_string.append(f'{indent}{k}: {v}')
         else:
             list_string.append(
                 f"{indent}{k}: "
                 f"{format_dic(v, replacer, deep_indent_size)}"
             )
-    result = itertools.chain('{', list_string, [current_indent + '}'])
-    return '\n'. join(result)
-
+    
+    result = itertools.chain('{', list_string, [current_indent + '}'])  
+    return '\n'.join(result)
 
 def is_bool(item):
-    if type(item) is bool:
+    if isinstance(item, bool):
         return str(item).lower()
     elif item is None:
         return 'null'
     else:
         return item
+
