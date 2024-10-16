@@ -1,95 +1,110 @@
-import itertools
+def gen_stylish_format(diff, sep=' ', sep_count=4, depth=0):
+    """
+    Returns a string in stylish format
 
-STATUS = 'status'
-ADDED = 'added'
-NESTED = 'nested'
-REMOVED = 'removed'
-UNCHANGED = 'unchanged'
-UPDATED = 'updated'
-VALUE = 'value'
-UPDATED_VALUE = 'updated_value'
-ERROR = 'Object has no STATUS'
-INDENT_STEP = 4
+    Args:
+        diff (list): List with differences
+        sep (str, optional): Separator. Defaults to ' '.
+        sep_count (int, optional): Separator count. Defaults to 4.
+        depth (int, optional): Depth. Defaults to 0.
+    """
+    depth += sep_count
+    result_string = ''
 
-def stylish_format(item, replacer=' ', add='+ ', remove='- '):  # noqa: C901
-    def iter_(current_item, depth):
-        if not isinstance(current_item, dict):
-            return str(current_item)
+    for value in diff:
 
-        deep_indent_size = depth + INDENT_STEP
-        deep_indent = replacer * deep_indent_size
-        current_indent = replacer * depth
+        if value.get('status') == 'nested':
+            result_string += (f'{depth * sep}'
+                              f'{value['key']}: '
+                              f'{gen_stylish_format(value['value'],
+                                 sep,
+                                 sep_count,
+                                 depth)}\n')
 
-        list_string = []
-        for key, val in current_item.items():
-            if val[STATUS] == REMOVED:
-                values = is_bool(val[VALUE])
-                list_string.append(
-                    f"{deep_indent[:-2]}{remove}{key}: "
-                    f"{format_dic(values, replacer, deep_indent_size)}"
-                )
-            elif val[STATUS] == ADDED:
-                values = is_bool(val[VALUE])
-                list_string.append(
-                    f"{deep_indent[:-2]}{add}{key}: "
-                    f"{format_dic(values, replacer, deep_indent_size)}"
-                )
-            elif val[STATUS] == UNCHANGED:
-                values = is_bool(val[VALUE])
-                list_string.append(
-                    f"{deep_indent}{key}: "
-                    f"{format_dic(values, replacer, deep_indent_size)}"
-                )
-            elif val[STATUS] == UPDATED:
-                value1 = is_bool(val[VALUE])
-                value2 = is_bool(val[UPDATED_VALUE])
-                list_string.append(
-                    f"{deep_indent[:-2]}{remove}{key}: "
-                    f"{format_dic(value1, replacer, deep_indent_size)}"
-                )
-                list_string.append(
-                    f"{deep_indent[:-2]}{add}{key}: "
-                    f"{format_dic(value2, replacer, deep_indent_size)}"
-                )
-            elif val[STATUS] == NESTED:
-                list_string.append(
-                    f"{deep_indent}{key}: "
-                    f"{iter_(val[VALUE], deep_indent_size)}"
-                )
-            else:
-                raise ValueError(ERROR)
-                
-        result = itertools.chain('{', list_string, [current_indent + '}'])
-        return '\n'.join(result)
-                
-    return iter_(item, 0)
+        elif value.get('status') == 'added':
+            result_string += (f'{(depth - 2) * sep}+ '
+                              f'{value['key']}: '
+                              f'{to_str(value['value'],
+                                        depth,
+                                        sep_count,
+                                        sep)}\n')
 
-def format_dic(item, replacer, depth=0):  
-    if not isinstance(item, dict):
-        return str(item)
+        elif value.get('status') == 'deleted':
+            result_string += (f'{(depth - 2) * sep}- '
+                              f'{value['key']}: '
+                              f'{to_str(value['value'],
+                                        depth,
+                                        sep_count,
+                                        sep)}\n')
 
-    deep_indent_size = depth + INDENT_STEP 
-    indent = replacer * deep_indent_size
-    current_indent = replacer * depth
-    list_string = []
-    
-    for k, v in item.items():
-        if not isinstance(v, dict):
-            list_string.append(f'{indent}{k}: {v}')
-        else:
-            list_string.append(
-                f"{indent}{k}: "
-                f"{format_dic(v, replacer, deep_indent_size)}"
-            )
-    
-    result = itertools.chain('{', list_string, [current_indent + '}'])  
-    return '\n'.join(result)
+        elif value.get('status') == 'changed':
+            result_string += (f'{(depth - 2) * sep}- '
+                              f'{value['key']}: {to_str(value['old_value'],
+                                                        depth,
+                                                        sep_count,
+                                                        sep)}\n')
+            result_string += (f'{(depth - 2) * sep}+ '
+                              f'{value['key']}: {to_str(value['new_value'],
+                                                        depth,
+                                                        sep_count,
+                                                        sep)}\n')
 
-def is_bool(item):
-    if isinstance(item, bool):
-        return str(item).lower()
-    elif item is None:
+        elif value.get('status') is None:
+            result_string += (f'{depth * sep}'
+                              f'{value['key']}: '
+                              f'{to_str(value['value'],
+                                        depth,
+                                        sep_count,
+                                        sep)}\n')
+
+    result = '{\n' + result_string + (sep * (depth - sep_count)) + '}\n'
+    return result.strip('\n')
+
+
+def dict_to_str(data, depth, sep_count, sep):
+    """
+    Converts dict to string in stylish format
+
+    Args:
+        data (dict): Dict to convert
+        depth (int): Depth
+        sep_count (int): Separator count
+        sep (str): Separator
+    """
+    depth += sep_count
+    result_string = ''
+
+    for key, value in data.items():
+        if not isinstance(value, dict):
+            result_string += (f'{depth * sep}'
+                              f'{key}: {value}\n')
+        elif isinstance(value, dict):
+            result_string += (f'{depth * sep}'
+                              f'{key}: {dict_to_str(value,
+                                                    depth,
+                                                    sep_count,
+                                                    sep)}\n')
+
+    result = '{\n' + result_string + (sep * (depth - sep_count)) + '}\n'
+    return result.strip('\n')
+
+
+def to_str(value, depth, sep_count, sep):
+    """
+    Converts value to string in stylish format
+
+    Args:
+        value (bool, int, list, dict): Value to convert
+        depth (int): Depth
+        sep_count (int): Separator count
+        sep (str): Separator
+    """
+    if isinstance(value, dict):
+        return dict_to_str(value, depth, sep_count, sep)
+    elif value is None:
         return 'null'
-    else:
-        return item
-
+    elif value is True:
+        return 'true'
+    elif value is False:
+        return 'false'
+    return value
