@@ -1,5 +1,11 @@
-from json import dumps
+import json
 
 
-def format_json(diff):
-    return dumps(diff, indent=4)
+def gen_json_format(diff):
+    """
+    Returns a string in JSON format
+
+    Args:
+        diff (list): List with differences
+    """
+    return json.dumps(diff)
