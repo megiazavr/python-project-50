@@ -1,7 +1,7 @@
 def builder(file1, file2):
     """
-    Builds diff between two dicts and returns it as a list of dicts with the following 
-structure {'key': 'key', 'value': 'value', 'status': 
+    Builds diff between two dicts and returns it as a list of dicts with the following
+structure {'key': 'key', 'value': 'value', 'status':
 'status'}
 
     Args:
