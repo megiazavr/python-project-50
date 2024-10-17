@@ -1,7 +1,7 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/megiazavr/python-project-50/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/megiazavr/python-project-50/actions)
 
-###Maintability
+### Maintability:
 [![Maintainability](https://api.codeclimate.com/v1/badges/66f57cb8d7347b5da271/maintainability)](https://codeclimate.com/github/megiazavr/python-project-50/maintainability)
 
 ###gendiff -h + differences
