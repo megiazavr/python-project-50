@@ -25,9 +25,8 @@ def load_file(path_file):
         with open(path_file, 'r') as yml_file:
             file = yaml.safe_load(yml_file)
             return file
-    elif extension == '.json':
+    if extension == '.json':
         file = json.load(open(path_file))
         return file
-    else:
-        raise ValueError("Unsupported file format. "
+    raise ValueError("Unsupported file format. "
                          "Expected '.yaml', '.yml' or '.json'.")

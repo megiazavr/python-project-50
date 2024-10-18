@@ -1,4 +1,4 @@
-def builder(file1, file2):
+def build_diff(file1, file2):
     """
     Builds diff between two dicts and returns it as a list of dicts with the following
 structure {'key': 'key', 'value': 'value', 'status':
@@ -19,7 +19,7 @@ structure {'key': 'key', 'value': 'value', 'status':
 
         if isinstance(value1, dict) and isinstance(value2, dict):
             diff.append({'key': key,
-                         'value': builder(value1, value2),
+                         'value': build_diff(value1, value2),
                          'status': 'nested'})
 
         else:
